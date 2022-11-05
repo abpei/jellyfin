@@ -2225,6 +2225,12 @@ namespace Emby.Server.Implementations.LiveTv.EmbyTV
                     continue;
                 }
 
+                // Skip ShowId without SubKey from duplicate removal actions - https://github.com/jellyfin/jellyfin/issues/5856
+                if (group.Key.EndsWith("0000", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 HandleDuplicateShowIds(groupTimers);
             }
         }

@@ -22,7 +22,6 @@ using Emby.Drawing;
 using Emby.Naming.Common;
 using Emby.Notifications;
 using Emby.Photos;
-using Emby.Server.Implementations.Archiving;
 using Emby.Server.Implementations.Channels;
 using Emby.Server.Implementations.Collections;
 using Emby.Server.Implementations.Configuration;
@@ -561,8 +560,6 @@ namespace Emby.Server.Implementations
 
             serviceCollection.AddSingleton<IInstallationManager, InstallationManager>();
 
-            serviceCollection.AddSingleton<IZipClient, ZipClient>();
-
             serviceCollection.AddSingleton<IServerApplicationHost>(this);
             serviceCollection.AddSingleton(ApplicationPaths);
 
@@ -1091,15 +1088,7 @@ namespace Emby.Server.Implementations
                 return GetLocalApiUrl(request.Host.Host, request.Scheme, requestPort);
             }
 
-            // Published server ends with a /
-            if (!string.IsNullOrEmpty(PublishedServerUrl))
-            {
-                // Published server ends with a '/', so we need to remove it.
-                return PublishedServerUrl.Trim('/');
-            }
-
-            string smart = NetManager.GetBindInterface(request, out var port);
-            return GetLocalApiUrl(smart.Trim('/'), request.Scheme, port);
+            return GetSmartApiUrl(request.HttpContext.Connection.RemoteIpAddress ?? IPAddress.Loopback);
         }
 
         /// <inheritdoc/>
